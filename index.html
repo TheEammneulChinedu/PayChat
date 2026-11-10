@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>PayChat — pay anyone on any chain by typing a sentence</title>
+<meta name="description" content="Type who to pay in plain English. PayChat pays them on Solana, Base, Ethereum and more from your NEAR wallet, using NEAR Intents." />
+<style>
+  :root {
+    --bg: #f6f5f1; --card: #ffffff; --ink: #16181d; --muted: #6b6f76; --line: #e4e2dc;
+    --accent: #00c08b; --accent-ink: #003d2c; --warn: #b54708; --warn-bg: #fff4e5;
+    --err: #b42318; --err-bg: #fef3f2; --ok-bg: #ecfdf3; --radius: 14px;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg: #111214; --card: #1a1c1f; --ink: #f1f1ef; --muted: #9a9ea6; --line: #2b2e33;
+      --warn-bg: #2a1d0c; --err-bg: #2b1513; --ok-bg: #0f2a1f; --accent-ink: #d6fff1; }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink);
+    font: 16px/1.5 ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  .wrap { max-width: 720px; margin: 0 auto; padding: 20px 16px 80px; }
+  header { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 28px; }
+  .logo { font-weight: 800; font-size: 22px; letter-spacing: -0.02em; }
+  .logo span { color: var(--accent); }
+  h1 { font-size: clamp(26px, 5vw, 36px); line-height: 1.15; letter-spacing: -0.02em; margin: 0 0 8px; }
+  .sub { color: var(--muted); margin: 0 0 22px; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 16px; }
+  textarea { width: 100%; min-height: 92px; resize: vertical; border: 1px solid var(--line); border-radius: 10px;
+    padding: 12px; font: inherit; background: transparent; color: inherit; }
+  textarea:focus, input:focus, select:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
+  .row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+  .spread { justify-content: space-between; }
+  button { font: inherit; border-radius: 10px; border: 1px solid var(--line); background: var(--card); color: var(--ink);
+    padding: 9px 14px; cursor: pointer; }
+  button.primary { background: var(--accent); border-color: var(--accent); color: #fff; font-weight: 650; }
+  button:disabled { opacity: .5; cursor: not-allowed; }
+  button.link { border: none; background: none; color: var(--muted); padding: 4px 6px; text-decoration: underline; }
+  .chips { display: flex; gap: 8px; flex-wrap: wrap; margin: 10px 0 2px; }
+  .chip { font-size: 13px; padding: 5px 10px; border-radius: 999px; color: var(--muted); }
+  select, input { font: inherit; padding: 8px 10px; border-radius: 10px; border: 1px solid var(--line);
+    background: var(--card); color: var(--ink); }
+  label.small { font-size: 13px; color: var(--muted); }
+  section { margin-top: 26px; }
+  h2 { font-size: 15px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); margin: 0 0 10px; }
+  .pay { display: grid; grid-template-columns: 1fr auto; gap: 4px 12px; padding: 12px 0; border-top: 1px solid var(--line); }
+  .pay:first-child { border-top: none; }
+  .pay .who { font-weight: 650; overflow-wrap: anywhere; }
+  .pay .meta { color: var(--muted); font-size: 14px; overflow-wrap: anywhere; }
+  .pay .amt { font-weight: 700; text-align: right; white-space: nowrap; }
+  .msg { border-radius: 10px; padding: 8px 12px; font-size: 14px; margin-top: 6px; grid-column: 1 / -1; }
+  .msg.err { background: var(--err-bg); color: var(--err); }
+  .msg.warn { background: var(--warn-bg); color: var(--warn); }
+  .badge { font-size: 12px; font-weight: 700; padding: 3px 8px; border-radius: 999px; background: var(--line); }
+  .badge.SUCCESS { background: var(--ok-bg); color: var(--accent); }
+  .badge.REFUNDED, .badge.FAILED { background: var(--err-bg); color: var(--err); }
+  .total { display: flex; justify-content: space-between; padding-top: 12px; border-top: 1px solid var(--line); font-weight: 700; }
+  .hidden { display: none !important; }
+  .note { font-size: 13px; color: var(--muted); }
+  a { color: var(--accent); }
+  dialog { border: 1px solid var(--line); border-radius: var(--radius); background: var(--card); color: var(--ink);
+    width: min(560px, 94vw); padding: 18px; }
+  dialog::backdrop { background: rgba(0,0,0,.4); }
+  .field { display: grid; gap: 4px; margin-bottom: 12px; }
+  .contact { display: flex; justify-content: space-between; gap: 8px; padding: 8px 0; border-top: 1px solid var(--line); font-size: 14px; }
+  .contact code { overflow-wrap: anywhere; }
+  .spinner { display: inline-block; width: 14px; height: 14px; border: 2px solid currentColor; border-right-color: transparent;
+    border-radius: 50%; animation: spin .8s linear infinite; vertical-align: -2px; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  footer { margin-top: 40px; color: var(--muted); font-size: 13px; text-align: center; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="logo">Pay<span>Chat</span></div>
+    <div class="row">
+      <button id="contactsBtn" class="link">Contacts</button>
+      <button id="settingsBtn" class="link">Settings</button>
+      <button id="connectBtn" class="primary">Connect wallet</button>
+    </div>
+  </header>
+
+  <h1>Pay anyone, on any chain,<br />by typing a sentence.</h1>
+  <p class="sub">PayChat reads your request, works out the payments and sends them from your NEAR wallet through NEAR Intents. Your recipients get the money on Solana, Base, Ethereum and more.</p>
+
+  <div class="card">
+    <textarea id="request" placeholder="e.g. Pay Tunde 2 USDC on Solana and Ada 1.5 USDC on Base"></textarea>
+    <div class="chips" id="examples"></div>
+    <div class="row spread" style="margin-top:10px">
+      <div class="row">
+        <label class="small" for="payWith">Pay with</label>
+        <select id="payWith"></select>
+      </div>
+      <button id="understandBtn" class="primary">Review payments</button>
+    </div>
+  </div>
+
+  <section id="reviewSection" class="hidden">
+    <h2>Check before you pay</h2>
+    <div class="card">
+      <div id="parsedBy" class="note"></div>
+      <div id="reviewList"></div>
+      <div id="reviewTotal" class="total"></div>
+      <div class="row spread" style="margin-top:14px">
+        <span class="note" id="payNote"></span>
+        <button id="payBtn" class="primary">Confirm &amp; pay</button>
+      </div>
+    </div>
+  </section>
+
+  <section id="receiptsSection" class="hidden">
+    <div class="row spread"><h2>Receipts</h2><button id="clearReceipts" class="link">Clear</button></div>
+    <div class="card" id="receiptList"></div>
+  </section>
+
+  <footer>Built for NEAR HACKATHON 2026 · Payments by <a href="https://docs.near-intents.org" target="_blank" rel="noopener">NEAR Intents</a> · AI by <a href="https://cloud.near.ai" target="_blank" rel="noopener">NEAR AI Cloud</a></footer>
+</div>
+
+<dialog id="contactsDlg">
+  <div class="row spread"><strong>Contacts</strong><button class="link" data-close>Close</button></div>
+  <p class="note">Save a name once, then just type "Pay Tunde 5 USDC". Saved only in this browser.</p>
+  <form id="contactForm">
+    <div class="field"><label class="small">Name</label><input name="name" required placeholder="Tunde" /></div>
+    <div class="field"><label class="small">Network</label><select name="chain" id="contactChain"></select></div>
+    <div class="field"><label class="small">Wallet address</label><input name="address" required placeholder="Their address on that network" /></div>
+    <div id="contactErr" class="msg err hidden"></div>
+    <button class="primary" type="submit">Save contact</button>
+  </form>
+  <div id="contactList" style="margin-top:14px"></div>
+</dialog>
+
+<dialog id="settingsDlg">
+  <div class="row spread"><strong>Settings</strong><button class="link" data-close>Close</button></div>
+  <p class="note">Optional. Keys are stored only in this browser.</p>
+  <div class="field"><label class="small">NEAR AI Cloud API key (turns on AI understanding)</label><input id="aiKey" type="password" placeholder="From cloud.near.ai" /></div>
+  <div class="field"><label class="small">AI model</label><input id="aiModel" /></div>
+  <div class="field"><label class="small">NEAR Intents API key (removes the 0.2% fee)</label><input id="intentsKey" type="password" placeholder="From partners.near-intents.org" /></div>
+  <button id="saveSettings" class="primary">Save</button>
+</dialog>
+
+<script type="module" src="./js/app.js"></script>
+</body>
+</html>
