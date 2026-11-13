@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>PayChat: pay anyone on any chain by typing a sentence</title>
+<meta name="description" content="Type who to pay in plain English. PayChat sends it from your NEAR wallet to Solana, Base, Ethereum, Tron and more, using NEAR Intents." />
+<meta property="og:title" content="PayChat: pay anyone on any chain by typing a sentence" />
+<meta property="og:description" content="One sentence, one approval, money delivered on any chain. Built on NEAR Intents and NEAR AI Cloud." />
+<style>
+  :root {
+    --bg: #f6f5f1; --card: #ffffff; --ink: #16181d; --muted: #62666d; --line: #e4e2dc;
+    --accent: #00c08b; --accent-soft: #e3f8f0; --radius: 16px;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg: #111214; --card: #1a1c1f; --ink: #f1f1ef; --muted: #9a9ea6; --line: #2b2e33; --accent-soft: #0f2a1f; }
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body { margin: 0; background: var(--bg); color: var(--ink);
+    font: 17px/1.55 ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  a { color: inherit; }
+  .wrap { max-width: 1040px; margin: 0 auto; padding: 0 20px; }
+  nav { display: flex; justify-content: space-between; align-items: center; padding: 18px 0; }
+  .logo { font-weight: 800; font-size: 22px; letter-spacing: -0.02em; text-decoration: none; }
+  .logo span, .accent { color: var(--accent); }
+  .navlinks { display: flex; gap: 18px; align-items: center; font-size: 15px; }
+  .navlinks a { text-decoration: none; color: var(--muted); }
+  .btn { display: inline-block; text-decoration: none; font-weight: 650; border-radius: 12px; padding: 12px 20px;
+    border: 1px solid var(--line); background: var(--card); color: var(--ink); }
+  .btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .navlinks .btn { padding: 8px 14px; color: #fff; }
+
+  .hero { display: grid; grid-template-columns: 1.05fr 1fr; gap: 48px; align-items: center; padding: 56px 0 72px; }
+  .eyebrow { display: inline-block; font-size: 13px; font-weight: 700; letter-spacing: .04em; color: var(--accent);
+    background: var(--accent-soft); padding: 5px 10px; border-radius: 999px; margin-bottom: 18px; }
+  h1 { font-size: clamp(36px, 6vw, 60px); line-height: 1.04; letter-spacing: -0.035em; margin: 0 0 18px; }
+  .lead { font-size: 19px; color: var(--muted); margin: 0 0 28px; max-width: 34em; }
+  .ctas { display: flex; gap: 12px; flex-wrap: wrap; }
+
+  /* hero mock */
+  .mock { background: var(--card); border: 1px solid var(--line); border-radius: 20px; padding: 18px;
+    box-shadow: 0 30px 60px -30px rgba(0,0,0,.25); }
+  .typed { border: 1px solid var(--line); border-radius: 12px; padding: 14px; min-height: 76px; font-size: 16px; }
+  .caret { display: inline-block; width: 2px; height: 1.1em; background: var(--accent); vertical-align: -3px; animation: blink 1s steps(1) infinite; }
+  @keyframes blink { 50% { opacity: 0; } }
+  .mrow { display: flex; justify-content: space-between; gap: 10px; padding: 12px 2px; border-top: 1px solid var(--line); font-size: 15px; }
+  .mrow:first-of-type { border-top: none; }
+  .mrow small { display: block; color: var(--muted); font-size: 13px; }
+  .badge { font-size: 12px; font-weight: 700; padding: 3px 9px; border-radius: 999px; background: var(--accent-soft); color: var(--accent); white-space: nowrap; align-self: center; }
+  .mhead { font-size: 12px; text-transform: uppercase; letter-spacing: .07em; color: var(--muted); margin: 16px 2px 2px; }
+
+  section { padding: 64px 0; border-top: 1px solid var(--line); }
+  h2 { font-size: clamp(28px, 4vw, 40px); letter-spacing: -0.025em; line-height: 1.1; margin: 0 0 12px; }
+  .sectionlead { color: var(--muted); margin: 0 0 34px; max-width: 40em; }
+  .grid3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 22px; }
+  .num { width: 32px; height: 32px; border-radius: 50%; background: var(--accent); color: #fff; font-weight: 800;
+    display: grid; place-items: center; margin-bottom: 14px; }
+  .card h3 { margin: 0 0 6px; font-size: 19px; }
+  .card p { margin: 0; color: var(--muted); font-size: 16px; }
+  .chains { display: flex; flex-wrap: wrap; gap: 10px; }
+  .chain { background: var(--card); border: 1px solid var(--line); border-radius: 999px; padding: 8px 16px; font-weight: 600; font-size: 15px; }
+  .two { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  ul.checks { list-style: none; padding: 0; margin: 0; }
+  ul.checks li { padding: 10px 0 10px 30px; position: relative; border-top: 1px solid var(--line); }
+  ul.checks li:first-child { border-top: none; }
+  ul.checks li::before { content: "✓"; position: absolute; left: 4px; color: var(--accent); font-weight: 800; }
+  .final { text-align: center; padding: 80px 0; }
+  .final .lead { margin-left: auto; margin-right: auto; }
+  footer { border-top: 1px solid var(--line); padding: 26px 0 40px; color: var(--muted); font-size: 14px;
+    display: flex; justify-content: space-between; flex-wrap: wrap; gap: 10px; }
+
+  @media (max-width: 820px) {
+    .hero, .two { grid-template-columns: 1fr; }
+    .grid3 { grid-template-columns: 1fr; }
+    .hero { padding-top: 24px; gap: 32px; }
+    .navlinks a:not(.btn) { display: none; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <nav>
+    <a class="logo" href="./">Pay<span>Chat</span></a>
+    <div class="navlinks">
+      <a href="#how">How it works</a>
+      <a href="#safe">Safety</a>
+      <a href="https://github.com/TheEammneulChinedu/paychat" target="_blank" rel="noopener">GitHub</a>
+      <a class="btn primary" href="./app.html">Open app</a>
+    </div>
+  </nav>
+
+  <div class="hero">
+    <div>
+      <span class="eyebrow">Built for NEAR HACKATHON 2026</span>
+      <h1>Pay anyone, on any chain, <span class="accent">by typing a sentence.</span></h1>
+      <p class="lead">Tell PayChat who to pay in plain English. It works out every payment, shows you the cost, and sends them all from your NEAR wallet with one approval. Your recipients get the money on Solana, Base, Ethereum, Tron and more, without bridges or swaps.</p>
+      <div class="ctas">
+        <a class="btn primary" href="./app.html">Try PayChat</a>
+        <a class="btn" href="#how">See how it works</a>
+      </div>
+    </div>
+
+    <div class="mock" aria-label="Example of PayChat">
+      <div class="typed"><span id="typed"></span><span class="caret"></span></div>
+      <div class="mhead">Check before you pay</div>
+      <div class="mrow"><div>Tunde<small>USDC on Solana</small></div><div style="text-align:right"><strong>20 USDC</strong><small>you send ≈ 20.06</small></div></div>
+      <div class="mrow"><div>Ada<small>USDC on Base</small></div><div style="text-align:right"><strong>15 USDC</strong><small>you send ≈ 15.05</small></div></div>
+      <div class="mhead">Receipts</div>
+      <div class="mrow"><div>Tunde · 20 USDC<small>on Solana</small></div><span class="badge">Delivered</span></div>
+      <div class="mrow"><div>Ada · 15 USDC<small>on Base</small></div><span class="badge">Delivered</span></div>
+    </div>
+  </div>
+</div>
+
+<section id="how">
+  <div class="wrap">
+    <h2>How it works</h2>
+    <p class="sectionlead">Three steps, and nothing moves until you approve it in your own wallet.</p>
+    <div class="grid3">
+      <div class="card"><div class="num">1</div><h3>Type it</h3><p>"Pay Tunde 20 USDC on Solana and Ada 15 USDC on Base." Use saved contact names or paste any address.</p></div>
+      <div class="card"><div class="num">2</div><h3>Check it</h3><p>PayChat lists each payment with live prices and flags anything unclear in red, like an unknown name or an invalid address.</p></div>
+      <div class="card"><div class="num">3</div><h3>Approve once</h3><p>One approval in your NEAR wallet sends every payment. Receipts update live until each one is delivered.</p></div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2>Pays out on the chains people actually use</h2>
+    <p class="sectionlead">You pay from NEAR with USDC or NEAR. Each recipient gets the token they asked for on their own network.</p>
+    <div class="chains">
+      <span class="chain">Solana</span><span class="chain">Base</span><span class="chain">Ethereum</span><span class="chain">Arbitrum</span>
+      <span class="chain">Polygon</span><span class="chain">BNB Chain</span><span class="chain">Optimism</span><span class="chain">Avalanche</span>
+      <span class="chain">Tron</span><span class="chain">TON</span><span class="chain">NEAR</span>
+    </div>
+  </div>
+</section>
+
+<section id="safe">
+  <div class="wrap two">
+    <div>
+      <h2>Built to stop mistakes before they cost you</h2>
+      <p class="sectionlead">Sending crypto to the wrong place usually can't be undone, so PayChat checks everything first.</p>
+    </div>
+    <div class="card">
+      <ul class="checks">
+        <li>Every address is checked against its network's format.</li>
+        <li>Names only resolve to contacts you saved yourself.</li>
+        <li>You see exactly what you'll send before you pay.</li>
+        <li>Recipients get the exact amount you typed.</li>
+        <li>If a payment fails, NEAR Intents refunds your NEAR account automatically.</li>
+        <li>Your keys never leave your wallet. PayChat has no server.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2>Powered by NEAR</h2>
+    <p class="sectionlead">PayChat is a thin, open-source layer on top of NEAR's cross-chain and AI infrastructure.</p>
+    <div class="grid3">
+      <div class="card"><h3>NEAR Intents</h3><p>Finds the best route and delivers each payment on its destination chain through the 1Click API.</p></div>
+      <div class="card"><h3>NEAR AI Cloud</h3><p>Private AI, running in secure hardware, turns your sentence into structured payments.</p></div>
+      <div class="card"><h3>NEAR Connect</h3><p>Sign in with the NEAR wallet you already use, like Meteor, HOT or MyNearWallet.</p></div>
+    </div>
+  </div>
+</section>
+
+<div class="wrap final">
+  <h2>Send your first payment in under a minute.</h2>
+  <p class="lead">Connect your NEAR wallet, type a sentence and approve.</p>
+  <a class="btn primary" href="./app.html">Open PayChat</a>
+</div>
+
+<div class="wrap">
+  <footer>
+    <span>PayChat · Open source (MIT) · Built for NEAR HACKATHON 2026</span>
+    <a href="https://github.com/TheEammneulChinedu/paychat" target="_blank" rel="noopener">View the code on GitHub</a>
+  </footer>
+</div>
+
+<script>
+  // Types out example requests in the hero.
+  const lines = [
+    "Pay Tunde 20 USDC on Solana and Ada 15 USDC on Base",
+    "Send 10 USDT to Musa on Tron",
+    "Pay alice.near 5 USDC",
+  ];
+  const el = document.getElementById("typed");
+  const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if (reduce) el.textContent = lines[0];
+  else {
+    let li = 0, ci = 0, del = false;
+    (function tick() {
+      const line = lines[li];
+      el.textContent = line.slice(0, ci);
+      if (!del && ci < line.length) { ci++; return setTimeout(tick, 45); }
+      if (!del) { del = true; return setTimeout(tick, 2200); }
+      if (ci > 0) { ci--; return setTimeout(tick, 18); }
+      del = false; li = (li + 1) % lines.length; setTimeout(tick, 300);
+    })();
+  }
+</script>
+</body>
+</html>
