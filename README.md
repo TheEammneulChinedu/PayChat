@@ -7,7 +7,7 @@
 PayChat reads the request, shows each payment for you to check, then sends them all from your NEAR wallet with **one approval**. **NEAR Intents** delivers the money to each recipient on their own network: Solana, Base, Ethereum, Arbitrum, Polygon, BNB Chain, Tron, NEAR and more. A receipt tracks every payment until it's delivered.
 
 **Live app:** `https://paychat-ruby.vercel.app/`
-**Demo video:** `<https://x.com/onchainmaverick/status/2121706510719840256?a=Iec2rGP0wMAN_Bin9VQ&s=20>`
+**Demo video:** `<https://x.com/onchainmaverick/status/2121711924396322944?a=wFFj3w913pDkSkLWRHo&s=20>`
 
 ## Why
 
