@@ -1,6 +1,6 @@
 # PayChat
 
-**Pay anyone, on any chain, by typing a sentence.** Built during NEAR HACKATHON 2026 (Real-world payments track), 10–14 November 2026.
+**Pay anyone, on any chain, by typing a sentence.** Built during NEAR HACKATHON 2026 (Real-world Payments and Open innovation Tracks), 10–14 November 2026.
 
 > "Pay Tunde 2 USDC on Solana and Ada 1.5 USDC on Base"
 
