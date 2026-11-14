@@ -17,7 +17,7 @@ Sending stablecoins to friends, freelancers or family on different chains means 
 ## Try it in 2 minutes
 
 **Without a wallet (free, nothing is sent):**
-1. Open https://paychat-ruby.vercel.app/app.html
+1. Open https://paychat-ruby.vercel.app/
 2. Type `Pay alice.near 0.5 USDC` and click **Review payments**.
 3. **Expected:** one line, "alice.near · 0.5 USDC · USDC on NEAR", with a live "you send ≈ …" price from NEAR Intents and a total in USD. **Confirm & pay** stays disabled with "Connect your wallet to pay."
 4. Type `Pay Ada 1 USDC on Base` and click **Review payments**.
